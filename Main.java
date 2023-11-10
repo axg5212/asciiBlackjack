@@ -19,6 +19,10 @@ public class Main {
 		while(choice == 1) {
 			
 			//Betting
+			if(player.balance == 0) {
+				System.out.println("Out of money. :(");
+				break;
+			}
 			System.out.printf("Balance: $%.2f\n", player.balance);
 			System.out.print("Enter bet amount: ");
 			int bet = in.nextInt();
