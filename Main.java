@@ -24,7 +24,7 @@ public class Main {
 				break;
 			}
 			System.out.printf("Balance: $%.2f\n", player.balance);
-			System.out.print("Enter bet amount: ");
+			System.out.print("Enter bet amount: $");
 			int bet = in.nextInt();
 			while(bet > player.balance) {
 				System.out.print("Not enough money. Enter bet amount: ");
@@ -44,10 +44,6 @@ public class Main {
 			player.printHand();
 			choice = 2;
 			boolean splitPlay = false;
-			//Check blackjack
-			if((player.hand.get(0) + player.hand.get(1)) == 21) {
-				System.out.print("Blackjack!");
-			}
 			
 			//Check split
 			if(player.returnSplit() && (player.bet * 2) <= player.balance) {
@@ -59,6 +55,7 @@ public class Main {
 					player.split.add(player.hand.get(1));
 					player.hand.remove(1);
 					//Main hand play
+					player.printHand();
 					while(player.returnHandValue() <= 21 && choice !=2) {
 						System.out.print("1: Hit\n2: Stand\nEnter choice: ");
 						choice = in.nextInt();
@@ -69,6 +66,7 @@ public class Main {
 					}
 					choice = 1;
 					//Split hand play
+					player.printSplit();
 					while(player.returnSplitValue() <= 21 && choice !=2) {
 						System.out.print("1: Hit\n2: Stand\nEnter choice: ");
 						choice = in.nextInt();
@@ -179,13 +177,13 @@ class Player extends Card{
 		int handValue = 0, softHandValue = 0;
 		for(int card : hand) {
 			card %= 13;
-			if(card == 1) {
+			if(card == 0) {
 				handValue += 11;
 				softHandValue += 1;
 			}
-			else if(card > 1 && card < 11) {
-				handValue += card;
-				softHandValue += card;
+			else if(card > 0 && card < 10) {
+				handValue += card + 1;
+				softHandValue += card + 1;
 			}
 			else if(card == 0 || card > 10){
 				handValue += 10;
@@ -307,7 +305,7 @@ class Player extends Card{
 				asciiHand.add(line);
 			}
 		}
-		String asciiCard[] = returnCard(0).split("\n");
+		String asciiCard[] = returnCard(52).split("\n");
 		for(String line : asciiCard) {
 			asciiHand.add(line);
 		}
@@ -433,163 +431,163 @@ class Card {
 		String asciiCard = null;
 		switch(card) {
 		case 0:
-			asciiCard = this.hiddenCard;
-			break;
-		case 1:
 			asciiCard = this.aceOfSpades;
 			break;
-		case 2:
+		case 1:
 			asciiCard = this.spadeTwo;
 			break;
-		case 3:
+		case 2:
 			asciiCard = this.spadeThree;
 			break;
-		case 4:
+		case 3:
 			asciiCard = this.spadeFour;
 			break;
-		case 5:
+		case 4:
 			asciiCard = this.spadeFive;
 			break;
-		case 6:
+		case 5:
 			asciiCard = this.spadeSix;
 			break;
-		case 7:
+		case 6:
 			asciiCard = this.spadeSeven;
 			break;
-		case 8:
+		case 7:
 			asciiCard = this.spadeEight;
 			break;
-		case 9:
+		case 8:
 			asciiCard = this.spadeNine;
 			break;
-		case 10:
+		case 9:
 			asciiCard = this.spadeTen;
 			break;
-		case 11:
+		case 10:
 			asciiCard = this.spadeJack;
 			break;
-		case 12:
+		case 11:
 			asciiCard = this.spadeQueen;
 			break;
-		case 13:
+		case 12:
 			asciiCard = this.spadeKing;
 			break;
-		case 14:
+		case 13:
 			asciiCard = this.aceOfHearts;
+			break;
+		case 14:
+			asciiCard = this.heartThree;
 			break;
 		case 15:
 			asciiCard = this.heartTwo;
 			break;
 		case 16:
-			asciiCard = this.heartThree;
-			break;
-		case 17:
 			asciiCard = this.heartFour;
 			break;
-		case 18:
+		case 17:
 			asciiCard = this.heartFive;
 			break;
-		case 19:
+		case 18:
 			asciiCard = this.heartSix;
 			break;
-		case 20:
+		case 19:
 			asciiCard = this.heartSeven;
 			break;
-		case 21:
+		case 20:
 			asciiCard = this.heartEight;
 			break;
-		case 22:
+		case 21:
 			asciiCard = this.heartNine;
 			break;
-		case 23:
+		case 22:
 			asciiCard = this.heartTen;
 			break;
-		case 24:
+		case 23:
 			asciiCard = this.heartJack;
 			break;
-		case 25:
+		case 24:
 			asciiCard = this.heartQueen;
 			break;
-		case 26:
+		case 25:
 			asciiCard = this.heartKing;
 			break;
-		case 27:
+		case 26:
 			asciiCard = this.aceOfClubs;
 			break;
-		case 28:
+		case 27:
 			asciiCard = this.clubTwo;
 			break;
-		case 29:
+		case 28:
 			asciiCard = this.clubThree;
 			break;
-		case 30:
+		case 29:
 			asciiCard = this.clubFour;
 			break;
-		case 31:
+		case 30:
 			asciiCard = this.clubFive;
 			break;
-		case 32:
+		case 31:
 			asciiCard = this.clubSix;
 			break;
-		case 33:
+		case 32:
 			asciiCard = this.clubSeven;
 			break;
-		case 34:
+		case 33:
 			asciiCard = this.clubEight;
 			break;
-		case 35:
+		case 34:
 			asciiCard = this.clubNine;
 			break;
-		case 36:
+		case 35:
 			asciiCard = this.clubTen;
 			break;
-		case 37:
+		case 36:
 			asciiCard = this.clubJack;
 			break;
-		case 38:
+		case 37:
 			asciiCard = this.clubQueen;
 			break;
-		case 39:
+		case 38:
 			asciiCard = this.clubKing;
 			break;
-		case 40:
+		case 39:
 			asciiCard = this.aceOfDiamonds;
 			break;
-		case 41:
+		case 40:
 			asciiCard = this.diamondTwo;
 			break;
-		case 42:
+		case 41:
 			asciiCard = this.diamondThree;
 			break;
-		case 43:
+		case 42:
 			asciiCard = this.diamondFour;
 			break;
-		case 44:
+		case 43:
 			asciiCard = this.diamondFive;
 			break;
-		case 45:
+		case 44:
 			asciiCard = this.diamondSix;
 			break;
-		case 46:
+		case 45:
 			asciiCard = this.diamondSeven;
 			break;
-		case 47:
+		case 46:
 			asciiCard = this.diamondEight;
 			break;
-		case 48:
+		case 47:
 			asciiCard = this.diamondNine;
 			break;
-		case 49:		
+		case 48:
 			asciiCard = this.diamondTen;
 			break;
-		case 50:
+		case 49:		
 			asciiCard = this.diamondJack;
 			break;
-		case 51:
+		case 50:
 			asciiCard = this.diamondQueen;
 			break;
-		case 52:
+		case 51:
 			asciiCard = this.diamondKing;
+			break;
+		case 52:
+			asciiCard = this.hiddenCard;
 			break;
 		}
 		return asciiCard;
