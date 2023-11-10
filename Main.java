@@ -36,7 +36,7 @@ public class Main {
 			dealer.hit(deck.getDeck(), dealer.hand);
 			
 			//The Play
-			dealer.printHand();
+			dealer.printHandHidden();
 			player.printHand();
 			choice = 2;
 			boolean splitPlay = false;
@@ -139,6 +139,7 @@ public class Main {
 			}
 			
 			//Reset player and dealer
+			deck.shuffle();
 			dealer.hand.clear();
 			player.hand.clear();
 			player.split.clear();
@@ -172,17 +173,17 @@ class Player extends Card{
 	int returnHandValue() {
 		
 		int handValue = 0, softHandValue = 0;
-		for(int card : this.hand) {
-			card %= 12;
-			if(card == 0) {
+		for(int card : hand) {
+			card %= 13;
+			if(card == 1) {
 				handValue += 11;
 				softHandValue += 1;
 			}
-			else if(card > 0 && card < 10) {
+			else if(card > 1 && card < 11) {
 				handValue += card;
 				softHandValue += card;
 			}
-			else {
+			else if(card == 0 || card > 10){
 				handValue += 10;
 				softHandValue += 10;
 			}
@@ -199,7 +200,7 @@ class Player extends Card{
 	int returnSplitValue() {
 		
 		int handValue = 0, softHandValue = 0;
-		for(int card : this.split) {
+		for(int card : split) {
 			card %= 12;
 			if(card == 0) {
 				handValue += 11;
@@ -225,7 +226,7 @@ class Player extends Card{
 	
 	boolean returnSplit() {
 		
-		if((this.hand.get(0) % 12) == (this.hand.get(1) % 12)) {
+		if((hand.get(0) % 13) == (hand.get(1) % 13)) {
 			return true;
 		}
 		else {
@@ -254,13 +255,65 @@ class Player extends Card{
 	
 	void printHand() {
 		
-		System.out.println(name + ": " + hand.toString() + returnHandValue());
+		ArrayList<String> asciiHand = new ArrayList<String>();
+		System.out.println(name + ": " + returnHandValue());
+		for(int card : hand) {
+			String asciiCard[] = returnCard(card).split("\n");
+			for(String line : asciiCard) {
+				asciiHand.add(line);
+			}
+		}
+		for(int i = 0; i < 9; i++) {
+			for(int j = 0; j < hand.size(); j++) {
+				int k = i + (j * 9);
+				System.out.print(asciiHand.get(k));
+			}
+			System.out.print("\n");
+		}
 	
 	}
 	
 	void printSplit() {
 		
-		System.out.println(split.toString() + returnHandValue());
+		ArrayList<String> asciiHand = new ArrayList<String>();
+		System.out.println("Split:" + returnSplitValue());
+		for(int card : split) {
+			String asciiCard[] = returnCard(card).split("\n");
+			for(String line : asciiCard) {
+				asciiHand.add(line);
+			}
+		}
+		for(int i = 0; i < 9; i++) {
+			for(int j = 0; j < split.size(); j++) {
+				int k = i + (j * 9);
+				System.out.print(asciiHand.get(k));
+			}
+			System.out.print("\n");
+		}
+	
+	}
+	
+	void printHandHidden() {
+		
+		ArrayList<String> asciiHand = new ArrayList<String>();
+		System.out.println(name + ": ");
+		for(int i = 0; i < hand.size() - 1; i++) {
+			String asciiCard[] = returnCard(hand.get(i)).split("\n");
+			for(String line : asciiCard) {
+				asciiHand.add(line);
+			}
+		}
+		String asciiCard[] = returnCard(0).split("\n");
+		for(String line : asciiCard) {
+			asciiHand.add(line);
+		}
+		for(int i = 0; i < 9; i++) {
+			for(int j = 0; j < hand.size(); j++) {
+				int k = i + (j * 9);
+				System.out.print(asciiHand.get(k));
+			}
+			System.out.print("\n");
+		}
 	
 	}
 
@@ -273,7 +326,7 @@ class Deck {
 	
 	void create() {
 		
-		for(int card = 0; card < 52; card++) {
+		for(int card = 1; card <= 52; card++) {
 			this.freshDeck.add(card);
 		}
 		
@@ -301,79 +354,83 @@ class Card {
 
 	String spade = "\u2660";
 	String club = "\u2663";
-	String heart = "\u001B[31m\u2665";
-	String diamond = "\u001B[31m\u2666";
+	String heart = "\u2665";
+	String diamond = "\u2666";
 	
 	String aceOfSpades = ("*----------*\n|A         |\n|    /\\    |\n|   /  \\   |\n|  (    )  |\n|   -/\\-   |\n|    --    |\n|         A|\n*----------*");
 	String aceOfClubs = ("*----------*\n|A         |\n|    /\\    |\n|    \\/    |\n|  /\\  /\\  |\n|  \\/  \\/  |\n|    /\\    |\n|         A|\n*----------*");
-	String aceOfHearts = ("\u001B[31m*----------*\n|A         |\n| /--\\/--\\ |\n| \\      / |\n|  \\    /  |\n|   \\  /   |\n|    \\/    |\n|         A|\n*----------*");
-	String aceOfDiamonds = ("\u001B[31m*----------*\n|A         |\n|    /\\    |\n|   /  \\   |\n|  (    )  |\n|   \\  /   |\n|    \\/    |\n|         A|\n*----------*");
+	String aceOfHearts = ("*----------*\n|A         |\n| /--\\/--\\ |\n| \\      / |\n|  \\    /  |\n|   \\  /   |\n|    \\/    |\n|         A|\n*----------*");
+	String aceOfDiamonds = ("*----------*\n|A         |\n|    /\\    |\n|   /  \\   |\n|  (    )  |\n|   \\  /   |\n|    \\/    |\n|         A|\n*----------*");
 	
 	String spadeTwo =("*----------*\n|2         |\n|          |\n|     \u2660    |\n|          |\n|     \u2660    |\n|          |\n|         2|\n*----------*");
 	String clubTwo =("*----------*\n|2         |\n|          |\n|     \u2663    |\n|          |\n|     \u2663    |\n|          |\n|         2|\n*----------*");
-	String heartTwo =("\u0001B[31m*----------*\n|2         |\n|          |\n|     \u2665    |\n|          |\n|     \u2665    |\n|          |\n|         2|\n*----------*");
-	String diamondTwo =("\u0001B[31m*----------*\n|2         |\n|          |\n|     \u2666    |\n|          |\n|     \u2666    |\n|          |\n|         2|\n*----------*");
+	String heartTwo =("*----------*\n|2         |\n|          |\n|     \u2665    |\n|          |\n|     \u2665    |\n|          |\n|         2|\n*----------*");
+	String diamondTwo =("*----------*\n|2         |\n|          |\n|     \u2666    |\n|          |\n|     \u2666    |\n|          |\n|         2|\n*----------*");
 	
 	String spadeThree = ("*----------*\n|3         |\n|     \u2660    |\n|          |\n|     \u2660    |\n|          |\n|     \u2660    |\n|         3|\n*----------*");
 	String clubThree = ("*----------*\n|3         |\n|     \u2663    |\n|          |\n|     \u2663    |\n|          |\n|     \u2663    |\n|         3|\n*----------*");
-	String heartThree = ("\u001B[31m*----------*\n|3         |\n|     \u2665    |\n|          |\n|     \u2665    |\n|          |\n|     \u2665    |\n|         3|\n*----------*");  
-	String diamondThree = ("\u001B[31m*----------*\n|3         |\n|     \u2666    |\n|          |\n|     \u2666    |\n|          |\n|     \u2666    |\n|         3|\n*----------*");
+	String heartThree = ("*----------*\n|3         |\n|     \u2665    |\n|          |\n|     \u2665    |\n|          |\n|     \u2665    |\n|         3|\n*----------*");  
+	String diamondThree = ("*----------*\n|3         |\n|     \u2666    |\n|          |\n|     \u2666    |\n|          |\n|     \u2666    |\n|         3|\n*----------*");
 
 	String spadeFour = ("*----------*\n|4         |\n|          |\n|  \u2660    \u2660  |\n|          |\n|  \u2660    \u2660  |\n|          |\n|         4|\n*----------*");
 	String clubFour = ("*----------*\n|4         |\n|          |\n|  \u2663    \u2663  |\n|          |\n|  \u2663    \u2663  |\n|          |\n|         4|\n*----------*");
-	String heartFour = ("\u001B[31m*----------*\n|4         |\n|          |\n|  \u2665    \u2665  |\n|          |\n|  \u2665    \u2665  |\n|          |\n|         4|\n*----------*");
-	String diamondFour = ("\u001B[31m*----------*\n|4         |\n|          |\n|  \u2666    \u2666  |\n|          |\n|  \u2666    \u2666  |\n|          |\n|         4|\n*----------*");
+	String heartFour = ("*----------*\n|4         |\n|          |\n|  \u2665    \u2665  |\n|          |\n|  \u2665    \u2665  |\n|          |\n|         4|\n*----------*");
+	String diamondFour = ("*----------*\n|4         |\n|          |\n|  \u2666    \u2666  |\n|          |\n|  \u2666    \u2666  |\n|          |\n|         4|\n*----------*");
 
 	String spadeFive = ("*----------*\n|5         |\n|          |\n|  \u2660    \u2660  |\n|     \u2660    |\n|  \u2660    \u2660  |\n|          |\n|         5|\n*----------*");
 	String clubFive = ("*----------*\n|5         |\n|          |\n|  \u2663    \u2663  |\n|     \u2663    |\n|  \u2663    \u2663  |\n|          |\n|         5|\n*----------*");
-	String heartFive = ("\u001B[31m*----------*\n|5         |\n|          |\n|  \u2665    \u2665  |\n|     \u2665    |\n|  \u2665    \u2665  |\n|          |\n|         5|\n*----------*");
-	String diamondFive = ("\u001B[31m*----------*\n|5         |\n|          |\n|  \u2666    \u2666  |\n|     \u2666    |\n|  \u2666    \u2666  |\n|          |\n|         5|\n*----------*");
+	String heartFive = ("*----------*\n|5         |\n|          |\n|  \u2665    \u2665  |\n|     \u2665    |\n|  \u2665    \u2665  |\n|          |\n|         5|\n*----------*");
+	String diamondFive = ("*----------*\n|5         |\n|          |\n|  \u2666    \u2666  |\n|     \u2666    |\n|  \u2666    \u2666  |\n|          |\n|         5|\n*----------*");
 
 	String spadeSix = ("*----------*\n|6         |\n|  \u2660    \u2660  |\n|          |\n|  \u2660    \u2660  |\n|          |\n|  \u2660    \u2660  |\n|         6|\n*----------*");
 	String clubSix = ("*----------*\n|6         |\n|  \u2663    \u2663  |\n|          |\n|  \u2663    \u2663  |\n|          |\n|  \u2663    \u2663  |\n|         6|\n*----------*");
-	String heartSix = ("\u001B[31m*----------*\n|6         |\n|  \u2665    \u2665  |\n|          |\n|  \u2665    \u2665  |\n|          |\n|  \u2665    \u2665  |\n|         6|\n*----------*");
-	String diamondSix = ("\u001B[31m*----------*\n|6         |\n|  \u2666    \u2666  |\n|          |\n|  \u2666    \u2666  |\n|          |\n|  \u2666    \u2666  |\n|         6|\n*----------*");
+	String heartSix = ("*----------*\n|6         |\n|  \u2665    \u2665  |\n|          |\n|  \u2665    \u2665  |\n|          |\n|  \u2665    \u2665  |\n|         6|\n*----------*");
+	String diamondSix = ("*----------*\n|6         |\n|  \u2666    \u2666  |\n|          |\n|  \u2666    \u2666  |\n|          |\n|  \u2666    \u2666  |\n|         6|\n*----------*");
 
 	String spadeSeven = ("*----------*\n|7         |\n|  \u2660    \u2660  |\n|          |\n|  \u2660  \u2660 \u2660  |\n|          |\n|  \u2660    \u2660  |\n|         7|\n*----------*");
 	String clubSeven = ("*----------*\n|7         |\n|  \u2663    \u2663  |\n|          |\n|  \u2663  \u2663 \u2663  |\n|          |\n|  \u2663    \u2663  |\n|         7|\n*----------*");
-	String heartSeven = ("\u001B[31m*----------*\n|7         |\n|  \u2665    \u2665  |\n|          |\n|  \u2665  \u2665 \u2665  |\n|          |\n|  \u2665    \u2665  |\n|         7|\n*----------*");
-	String diamondSeven = ("\u001B[31m*----------*\n|7         |\n|  \u2666    \u2666  |\n|          |\n|  \u2666  \u2666 \u2666  |\n|          |\n|  \u2666    \u2666  |\n|         7|\n*----------*");
+	String heartSeven = ("*----------*\n|7         |\n|  \u2665    \u2665  |\n|          |\n|  \u2665  \u2665 \u2665  |\n|          |\n|  \u2665    \u2665  |\n|         7|\n*----------*");
+	String diamondSeven = ("*----------*\n|7         |\n|  \u2666    \u2666  |\n|          |\n|  \u2666  \u2666 \u2666  |\n|          |\n|  \u2666    \u2666  |\n|         7|\n*----------*");
 
 	String spadeEight = ("*----------*\n|8         |\n|  \u2660    \u2660  |\n|  \u2660    \u2660  |\n|          |\n|  \u2660    \u2660  |\n|  \u2660    \u2660  |\n|         8|\n*----------*");
 	String clubEight = ("*----------*\n|8         |\n|  \u2663    \u2663  |\n|  \u2663    \u2663  |\n|          |\n|  \u2663    \u2663  |\n|  \u2663    \u2663  |\n|         8|\n*----------*");
-	String heartEight = ("\u001B[31m*----------*\n|8         |\n|  \u2665    \u2665  |\n|  \u2665    \u2665  |\n|          |\n|  \u2665    \u2665  |\n|  \u2665    \u2665  |\n|         8|\n*----------*");
-	String diamondEight = ("\u001B[31m*----------*\n|8         |\n|  \u2666    \u2666  |\n|  \u2666    \u2666  |\n|          |\n|  \u2666    \u2666  |\n|  \u2666    \u2666  |\n|         8|\n*----------*");
+	String heartEight = ("*----------*\n|8         |\n|  \u2665    \u2665  |\n|  \u2665    \u2665  |\n|          |\n|  \u2665    \u2665  |\n|  \u2665    \u2665  |\n|         8|\n*----------*");
+	String diamondEight = ("*----------*\n|8         |\n|  \u2666    \u2666  |\n|  \u2666    \u2666  |\n|          |\n|  \u2666    \u2666  |\n|  \u2666    \u2666  |\n|         8|\n*----------*");
 
 	String spadeNine = ("*----------*\n|9         |\n|  \u2660    \u2660  |\n|  \u2660    \u2660  |\n|     \u2660    |\n|  \u2660    \u2660  |\n|  \u2660    \u2660  |\n|         9|\n*----------*");
 	String clubNine = ("*----------*\n|9         |\n|  \u2663    \u2663  |\n|  \u2663    \u2663  |\n|     \u2663    |\n|  \u2663    \u2663  |\n|  \u2663    \u2663  |\n|         9|\n*----------*");
-	String heartNine = ("\u001B[31m*----------*\n|9         |\n|  \u2665    \u2665  |\n|  \u2665    \u2665  |\n|     \u2665    |\n|  \u2665    \u2665  |\n|  \u2665    \u2665  |\n|         9|\n*----------*");
-	String diamondNine = ("\u001B[31m*----------*\n|9         |\n|  \u2666    \u2666  |\n|  \u2666    \u2666  |\n|     \u2666    |\n|  \u2666    \u2666  |\n|  \u2666    \u2666  |\n|         9|\n*----------*");
+	String heartNine = ("*----------*\n|9         |\n|  \u2665    \u2665  |\n|  \u2665    \u2665  |\n|     \u2665    |\n|  \u2665    \u2665  |\n|  \u2665    \u2665  |\n|         9|\n*----------*");
+	String diamondNine = ("*----------*\n|9         |\n|  \u2666    \u2666  |\n|  \u2666    \u2666  |\n|     \u2666    |\n|  \u2666    \u2666  |\n|  \u2666    \u2666  |\n|         9|\n*----------*");
 
 	String spadeTen = ("*----------*\n|10        |\n|  \u2660    \u2660  |\n|  \u2660    \u2660  |\n|  \u2660    \u2660  |\n|  \u2660    \u2660  |\n|  \u2660    \u2660  |\n|        10|\n*----------*");
 	String clubTen = ("*----------*\n|10        |\n|  \u2663    \u2663  |\n|  \u2663    \u2663  |\n|  \u2663    \u2663  |\n|  \u2663    \u2663  |\n|  \u2663    \u2663  |\n|        10|\n*----------*");
-	String heartTen = ("\u001B[31m*----------*\n|10        |\n|  \u2665    \u2665  |\n|  \u2665    \u2665  |\n|  \u2665    \u2665  |\n|  \u2665    \u2665  |\n|  \u2665    \u2665  |\n|        10|\n*----------*");
-	String diamondTen = ("\u001B[31m*----------*\n|10        |\n|  \u2666    \u2666  |\n|  \u2666    \u2666  |\n|  \u2666    \u2666  |\n|  \u2666    \u2666  |\n|  \u2666    \u2666  |\n|        10|\n*----------*");
+	String heartTen = ("*----------*\n|10        |\n|  \u2665    \u2665  |\n|  \u2665    \u2665  |\n|  \u2665    \u2665  |\n|  \u2665    \u2665  |\n|  \u2665    \u2665  |\n|        10|\n*----------*");
+	String diamondTen = ("*----------*\n|10        |\n|  \u2666    \u2666  |\n|  \u2666    \u2666  |\n|  \u2666    \u2666  |\n|  \u2666    \u2666  |\n|  \u2666    \u2666  |\n|        10|\n*----------*");
 
 	String spadeJack = ("*----------*\n|J         |\n|    /\\    |\n|   /__\\   |\n|   0  0   |\n|   \\__/   |\n|   /\u2660\u2660\\   |\n|         J|\n*----------*");
 	String clubJack = ("*----------*\n|J         |\n|    /\\    |\n|   /__\\   |\n|   0  0   |\n|   \\__/   |\n|   /\u2663\u2663\\   |\n|         J|\n*----------*");
-	String heartJack = ("\u001B[31m*----------*\n|J         |\n|    /\\    |\n|   /__\\   |\n|   0  0   |\n|   \\__/   |\n|   /\u2665\u2665\\   |\n|         J|\n*----------*");
-	String diamondJack = ("\u001B[31m*----------*\n|J         |\n|    /\\    |\n|   /__\\   |\n|   0  0   |\n|   \\__/   |\n|   /\u2666\u2666\\   |\n|         J|\n*----------*");
+	String heartJack = ("*----------*\n|J         |\n|    /\\    |\n|   /__\\   |\n|   0  0   |\n|   \\__/   |\n|   /\u2665\u2665\\   |\n|         J|\n*----------*");
+	String diamondJack = ("*----------*\n|J         |\n|    /\\    |\n|   /__\\   |\n|   0  0   |\n|   \\__/   |\n|   /\u2666\u2666\\   |\n|         J|\n*----------*");
 
 	String spadeQueen = ("*----------*\n|Q         |\n|  /-\\/-\\  |\n|  |____|  |\n|   0  0   |\n|   \\__/   |\n|   /\u2660\u2660\\   |\n|         Q|\n*----------*");
 	String clubQueen = ("*----------*\n|Q         |\n|  /-\\/-\\  |\n|  |____|  |\n|   0  0   |\n|   \\__/   |\n|   /\u2663\u2663\\   |\n|         Q|\n*----------*");
-	String heartQueen = ("\u001B[31m*----------*\n|Q         |\n|  /-\\/-\\  |\n|  |____|  |\n|   0  0   |\n|   \\__/   |\n|   /\u2665\u2665\\   |\n|         Q|\n*----------*");
-	String diamondQueen = ("\u001B[31m*----------*\n|Q         |\n|  /-\\/-\\  |\n|  |____|  |\n|   0  0   |\n|   \\__/   |\n|   /\u2666\u2666\\   |\n|         Q|\n*----------*");
+	String heartQueen = ("*----------*\n|Q         |\n|  /-\\/-\\  |\n|  |____|  |\n|   0  0   |\n|   \\__/   |\n|   /\u2665\u2665\\   |\n|         Q|\n*----------*");
+	String diamondQueen = ("*----------*\n|Q         |\n|  /-\\/-\\  |\n|  |____|  |\n|   0  0   |\n|   \\__/   |\n|   /\u2666\u2666\\   |\n|         Q|\n*----------*");
 
 	String spadeKing = ("*----------*\n|K         |\n|  /\\/\\/\\  |\n|  |____|  |\n|   0  0   |\n|   \\__/   |\n|   /\u2660\u2660\\   |\n|         K|\n*----------*");
 	String clubKing = ("*----------*\n|K         |\n|  /\\/\\/\\  |\n|  |____|  |\n|   0  0   |\n|   \\__/   |\n|   /\u2663\u2663\\   |\n|         K|\n*----------*");
-	String heartKing = ("\u001B[31m*----------*\n|K         |\n|  /\\/\\/\\  |\n|  |____|  |\n|   0  0   |\n|   \\__/   |\n|   /\u2665\u2665\\   |\n|         K|\n*----------*");
-	String diamondKing = ("\u001B[31m*----------*\n|K         |\n|  /\\/\\/\\  |\n|  |____|  |\n|   0  0   |\n|   \\__/   |\n|   /\u2666\u2666\\   |\n|         K|\n*----------*");
+	String heartKing = ("*----------*\n|K         |\n|  /\\/\\/\\  |\n|  |____|  |\n|   0  0   |\n|   \\__/   |\n|   /\u2665\u2665\\   |\n|         K|\n*----------*");
+	String diamondKing = ("*----------*\n|K         |\n|  /\\/\\/\\  |\n|  |____|  |\n|   0  0   |\n|   \\__/   |\n|   /\u2666\u2666\\   |\n|         K|\n*----------*");
 
+	String hiddenCard = ("*----------*\n|##########|\n|##########|\n|##########|\n|##########|\n|##########|\n|##########|\n|##########|\n*----------*");
 	
 	String returnCard(int card) {
 		
 		String asciiCard = null;
 		switch(card) {
+		case 0:
+			asciiCard = this.hiddenCard;
+			break;
 		case 1:
 			asciiCard = this.aceOfSpades;
 			break;
@@ -518,7 +575,7 @@ class Card {
 		case 48:
 			asciiCard = this.diamondNine;
 			break;
-		case 49:
+		case 49:		
 			asciiCard = this.diamondTen;
 			break;
 		case 50:
