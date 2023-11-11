@@ -24,7 +24,7 @@ public class Main {
 				break;
 			}
 			System.out.printf("Balance: $%.2f\n", player.balance);
-			System.out.print("Enter bet amount: $");
+			System.out.print("Enter bet amount: ");
 			int bet = in.nextInt();
 			while(bet > player.balance) {
 				System.out.print("Not enough money. Enter bet amount: ");
