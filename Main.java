@@ -6,100 +6,128 @@ public class Main {
 		
 		Scanner in = new Scanner(System.in);
 		
-		//The Pack
+		//Creates a new deck of cards to use and shuffle
 		Deck deck = new Deck();
 		deck.create();
 		deck.shuffle();
 		
-		//Create player and dealer
-		Player player = new Player("Player", 1000);
-		Player dealer = new Player("Dealer", 0);
+		//Checks the number of players (max 4)
+		System.out.print("Hello There! Enter Number of Players: \n");
+		int nPlayers = in.nextInt();
+		while(nPlayers > 4) {
+				System.out.print("Sorry, we only allow 4 players in our casino.\nPlease kick out the people you least like and enter the new number of players:\n");
+				nPlayers = in.nextInt();
+		}
+		//this catches the new line from before
+		in.nextLine();
+		
+		//Creates the player array that holds every player with a name for each player
+		Player players[] = new Player[nPlayers];
+		for(int i = 0; i < nPlayers; i++){
+		    System.out.print("Please input Player " +(i+1)+ "'s name: \n");
+		    String tName = in.nextLine();
+		    players[i] = new Player(tName,1000, false);
+		}
+
+		//Creates the dealer
+		Player dealer = new Player("Dealer", 0, false);
 		int choice = 1;
 		
+		//main game loop
+		endgame:
 		while(choice == 1) {
 			
-			//Betting
-			if(player.balance == 0) {
-				System.out.println("Out of money. :(");
-				break;
+			//Betting -------------------------------------------------------------------
+			for(Player player : players){
+			    if(player.balance == 0) {
+			    	System.out.println("Out of money. :(\n"); //checks for money in the balance
+			    	System.out.println("Player: " +player.name+ " loses! \n");
+			    	break endgame; //breaks the enitre loop, ending the game
+			    }
+		    	System.out.printf(player.name + "'s Balance: $%.2f ", player.balance);
+		    	System.out.print("Enter bet amount: \n");
+		    	int bet = in.nextInt();
+		    	while(bet > player.balance || bet <= 0) {
+		    		System.out.print("Not enough money. Enter bet amount: \n");
+		    		bet = in.nextInt();
+		    	}
+		    	player.bet = bet;
+		    	player.balance -= bet; //substracts the bet from the balance to not double it up later
 			}
-			System.out.printf("Balance: $%.2f\n", player.balance);
-			System.out.print("Enter bet amount: ");
-			int bet = in.nextInt();
-			while(bet > player.balance) {
-				System.out.print("Not enough money. Enter bet amount: ");
-				bet = in.nextInt();
-			}
-			player.bet = bet;
-			player.balance -= bet;
 			
-			//Deal cards
-			player.hit(deck.getDeck(), player.hand);
+			//Deal cards -------------------------------------------------------------------------
 			dealer.hit(deck.getDeck(), dealer.hand);
-			player.hit(deck.getDeck(), player.hand);
 			dealer.hit(deck.getDeck(), dealer.hand);
-			
-			//The Play
-			dealer.printHandHidden();
-			player.printHand();
-			choice = 2;
-			boolean splitPlay = false;
-			
-			//Check split
-			if(player.returnSplit() && (player.bet * 2) <= player.balance) {
-				System.out.print("1: Yes\n2: No\nSplit hand?\nEnter choice: ");
-				choice = in.nextInt();
-				if(choice == 1) {
-					splitPlay = true;
-					player.balance -= player.bet;
-					player.split.add(player.hand.get(1));
-					player.hand.remove(1);
-					//Main hand play
-					player.printHand();
-					while(player.returnHandValue() <= 21 && choice !=2) {
-						System.out.print("1: Hit\n2: Stand\nEnter choice: ");
-						choice = in.nextInt();
-						if(choice == 1) {
-							player.hit(deck.getDeck(), player.hand);
-							player.printHand();
-						}
-					}
-					choice = 1;
-					//Split hand play
-					player.printSplit();
-					while(player.returnSplitValue() <= 21 && choice !=2) {
-						System.out.print("1: Hit\n2: Stand\nEnter choice: ");
-						choice = in.nextInt();
-						if(choice == 1) {
-							player.hit(deck.getDeck(), player.split);
-							player.printSplit();
-						}
-					}
-					choice = 1;
-				}
+			for(Player player : players){
+			    player.hit(deck.getDeck(), player.hand);
+			    player.hit(deck.getDeck(), player.hand);
 			}
 			
-			//Check double down
-			if(player.returnDoubleDown()  && (player.bet * 2) <= player.balance && choice == 2) {
-				System.out.print("1: Yes\n2: No\nDouble down?\nEnter choice: ");
-				choice = in.nextInt();
-				//Double down play
-				if(choice == 1) {
-					player.hit(deck.getDeck(), player.hand);
-					player.printHand();
-					player.balance -= player.bet;
-					player.bet *= 2;
-				}
-			}
-			if(choice == 2) {
-				do {
-					System.out.print("1: Hit\n2: Stand\nEnter choice: ");
-					choice = in.nextInt();
-					if(choice == 1) {
-						player.hit(deck.getDeck(), player.hand);
-					}
-					player.printHand();
-				} while(choice != 2 && player.returnHandValue() < 21);
+			//Game Loop ---------------------------------------------------------------------------
+			for(Player player : players){
+			    System.out.println("");
+			    dealer.printHandHidden(); //prints dealer hand with player hand for convinience 
+			    player.printHand();
+			    choice = 2;
+		    	player.splitPlay = false; //resets split play so value doesn't carry over
+			
+		    	//Check split
+			    if(player.returnSplit() && (player.bet * 2) <= player.balance) {
+	    			System.out.print("1: Yes\n2: No\nSplit hand?\nEnter choice: \n");
+		    		choice = in.nextInt();
+			    	if(choice == 1) {
+				    	player.splitPlay = true;
+    					player.balance -= player.bet;
+	    				player.split.add(player.hand.get(1));
+		    			player.hand.remove(1);
+		    			//Main hand play
+		    			player.printHand();
+		    			while(player.returnHandValue() <= 21 && choice !=2) {
+		    				System.out.print("1: Hit\n2: Stand\nEnter choice: \n");
+		    				choice = in.nextInt();
+		    				if(choice == 1) {
+		    					player.hit(deck.getDeck(), player.hand);
+			    				player.printHand();
+			    			}
+			    		}
+			    		choice = 1;
+			    		//Split hand play
+			    		player.printSplit();
+			    		while(player.returnSplitValue() <= 21 && choice !=2) {
+			    			System.out.print("1: Hit\n2: Stand\nEnter choice: \n");
+			    			choice = in.nextInt();
+			    			if(choice == 1) {
+			    				player.hit(deck.getDeck(), player.split);
+			    				player.printSplit();
+			    			}
+			    		}
+			    		choice = 1;
+			    	}
+			    }
+			
+	    		//Check double down
+	    		if(player.returnDoubleDown()  && (player.bet * 2) <= player.balance && choice == 2) {
+    				System.out.print("1: Yes\n2: No\nDouble down?\nEnter choice: \n");
+    				choice = in.nextInt();
+    				//Double down play
+    				if(choice == 1) {
+    					player.hit(deck.getDeck(), player.hand);
+    					player.printHand();
+    					player.balance -= player.bet;
+    					player.bet *= 2;
+    				}
+    			}
+    			//Regular play
+	    		if(choice == 2) {
+	    			do {
+	    				System.out.print("1: Hit\n2: Stand\nEnter choice: \n");
+	    				choice = in.nextInt();
+	    				if(choice == 1) {
+	    					player.hit(deck.getDeck(), player.hand);
+	    				}
+	    				player.printHand();
+	    			} while(choice != 2 && player.returnHandValue() < 21); //bust condition
+	    		}
 			}
 			
 			//The Dealers Play
@@ -109,66 +137,86 @@ public class Main {
 				dealer.printHand();
 			}
 			
-			//Settlement
-			if(player.returnHandValue() > 21) {
-				System.out.println("BUST");
-			}
-			else if(player.returnHandValue() > dealer.returnHandValue() || dealer.returnHandValue() > 21) {
-				System.out.println("WIN");
-				player.balance += player.bet * 2;
-			}
-			else if(player.returnHandValue() == dealer.returnHandValue()) {
-				System.out.println("TIE");
-				player.balance += player.bet;
-			}
-			else {
-				System.out.println("LOSS");
-			}
-			if(player.returnSplitValue() > 21) {
-				System.out.println("SPLIT BUST");
-			}
-			else if(splitPlay && (player.returnHandValue() > dealer.returnHandValue() || dealer.returnHandValue() > 21)) {
-				System.out.println("SPLIT WIN");
-				player.balance += player.bet * 2;
-			}
-			else if(splitPlay && player.returnHandValue() == dealer.returnHandValue()) {
-				System.out.println("SPLIT TIE");
-				player.balance += player.bet;
-			}
-			else if(splitPlay){
-				System.out.println("SPLIT LOSS");
-				
+			//Results ------------------------------------------------------------------------------
+			for(Player player : players){ //each player plays against the dealer
+			    if(player.returnHandValue() > 21) {
+	    			System.out.println(player.name+" BUST\n");
+	    		}
+	    		else if(player.returnHandValue() > dealer.returnHandValue() || dealer.returnHandValue() > 21) {
+    				System.out.println(player.name+" WIN\n");
+    				player.balance += player.bet * 2;
+    			}
+    			else if(player.returnHandValue() == dealer.returnHandValue()) {
+    				System.out.println(player.name+" TIE\n");
+    				player.balance += player.bet;
+    			}
+    			else {
+    				System.out.println(player.name+" LOSS\n");
+    			}
+	    		if(player.returnSplitValue() > 21) {
+	    			System.out.println(player.name+" SPLIT BUST\n");
+	    		}
+	    		else if(player.splitPlay && (player.returnHandValue() > dealer.returnHandValue() || dealer.returnHandValue() > 21)) {
+	    			System.out.println(player.name+" SPLIT WIN\n");
+	    			player.balance += player.bet * 2;
+	    		}
+	    		else if(player.splitPlay && player.returnHandValue() == dealer.returnHandValue()) {
+	    			System.out.println(player.name+" SPLIT TIE\n");
+	    			player.balance += player.bet;
+	    		}
+	    		else if(player.splitPlay){
+	    			System.out.println(player.name+" SPLIT LOSS\n");
+    			}
 			}
 			
 			//Reset player and dealer
 			deck.shuffle();
 			dealer.hand.clear();
-			player.hand.clear();
-			player.split.clear();
-			player.bet = 0;
-			System.out.println("Play another round?\n1: Yes\n2: No");
+			for(Player player : players){
+			    player.hand.clear();
+			    player.split.clear();
+			    player.bet = 0;
+			}
+			System.out.println("Play another round?\n1: Yes\n2: No\n");
 			choice = in.nextInt();
 			
 		}
 		
+		//once loop ends we check for who has the most money in the bank
 		in.close();
-		
+		float maxVal = 0;
+		int holdCount = 0;
+		int winCount = 0;
+		if(nPlayers < 1){
+		    for(Player player : players){
+		    System.out.println(player.name+": "+player.balance);
+		    if(player.balance > maxVal){
+		        maxVal = player.balance;
+		        winCount = holdCount;
+		    }
+		        holdCount++;
+		    }
+		    System.out.println(players[winCount].name+" Wins!\n");
+		}
 	}
 
 }
 
+//Player class holds all values for each player
 class Player extends Card{
-	
+
 	String name;
 	float balance; 
 	float bet = 0;
 	ArrayList<Integer> hand = new ArrayList<Integer>();
 	ArrayList<Integer> split = new ArrayList<Integer>();
+	boolean splitPlay = false;
 	
-	public Player(String name, float balance) {
+	public Player(String name, float balance, boolean sp) {
 		
 		this.name = name;
 		this.balance = balance;
+		this.splitPlay = sp;
 		
 	}
 	
